@@ -1,21 +1,14 @@
-"""This is the Vicuna plugin for Auto-GPT."""
-import os
-from pathlib import Path
+"""This is the Test plugin for Auto-GPT."""
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
 
-from auto_vicuna.__main__ import load_model
-from auto_vicuna.chat import chat_one_shot
-from auto_vicuna.conversation import make_conversation
 from auto_gpt_plugin_template import AutoGPTPluginTemplate
-
-import torch
 
 PromptGenerator = TypeVar("PromptGenerator")
 
 
 class AutoGPTPVicuna(AutoGPTPluginTemplate):
     """
-    This is the Vicuna local model  plugin for Auto-GPT.
+    This is plugin for Auto-GPT.
     """
 
     def __init__(self):
@@ -23,20 +16,6 @@ class AutoGPTPVicuna(AutoGPTPluginTemplate):
         self._name = "Auto-GPT-Vicuna"
         self._version = "0.1.0"
         self._description = "This is a Vicuna local model plugin."
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.vicuna_weights = os.environ.get("VICUNA_WEIGHTS", "")
-
-        model, tokenizer = load_model(
-            self.vicuna_weights,
-            device=self.device,
-            num_gpus=1,
-            debug=False,
-            load_8bit=False,
-        )
-        self.model = model
-        self.tokenizer = tokenizer
-
-        model.eval()
 
     def can_handle_on_response(self) -> bool:
         """This method is called to check that the plugin can
@@ -48,7 +27,10 @@ class AutoGPTPVicuna(AutoGPTPluginTemplate):
 
     def on_response(self, response: str, *args, **kwargs) -> str:
         """This method is called when a response is received from the model."""
-        pass
+        if len(response):
+            print("OMG OMG It's Alive!")
+        else:
+            print("Is it alive?")
 
     def can_handle_post_prompt(self) -> bool:
         """This method is called to check that the plugin can
@@ -225,7 +207,7 @@ class AutoGPTPVicuna(AutoGPTPluginTemplate):
 
           Returns:
               bool: True if the plugin can handle the chat_completion method."""
-        return True
+        return False
 
     def handle_chat_completion(
         self,
@@ -245,25 +227,4 @@ class AutoGPTPVicuna(AutoGPTPluginTemplate):
         Returns:
             str: The resulting response.
         """
-        roles = {message["role"] for message in messages}
-        last_message = messages.pop()["content"]
-        conv = make_conversation(
-            "",
-            list(roles),
-            [(message["role"], message["content"]) for message in messages],
-        )
-        if max_tokens is None:
-            max_tokens = 2048
-        if max_tokens > 2048:
-            max_tokens = 2048
-        with torch.inference_mode():
-            return chat_one_shot(
-                self.model,
-                self.tokenizer,
-                self.vicuna_weights,
-                self.device,
-                conv,
-                last_message,
-                temperature,
-                max_tokens,
-            )
+        pass

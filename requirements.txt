@@ -7,4 +7,4 @@ wheel
 setuptools
 build
 twine
-auto-vicuna
+auto-gpt-plugin-template
